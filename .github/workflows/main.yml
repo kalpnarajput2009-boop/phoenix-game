@@ -1,0 +1,43 @@
+name: pygbag build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pygbag
+        run: |
+          pip install pygbag pygame
+
+      - name: Build game
+        run: |
+          pygbag --build .
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build-web
+    permissions:
+      pages: write
+      id-token: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
